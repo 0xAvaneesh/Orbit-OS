@@ -1,116 +1,182 @@
 
-const clock = document.getElementById("clock");
-
 function updateClock() {
-    const now = new Date();
-    clock.textContent = now.toLocaleDateString() + "  " + now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+  document.getElementById("clock").textContent =
+    new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
     });
 }
 
 updateClock();
 setInterval(updateClock, 1000);
 
-document.querySelectorAll("[data-open]").forEach(button => {
-    button.addEventListener("click", () => {
-        const app = document.getElementById(button.dataset.open);
-        app.hidden = false;
-        app.style.zIndex = Date.now();
-    });
+let topLayer = 10;
+
+function openApp(id) {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  win.hidden = false;
+  win.style.zIndex = ++topLayer;
+}
+
+function closeWindow(id) {
+  document.getElementById(id).hidden = true;
+}
+
+function minimizeWindow(id) {
+  document.getElementById(id).hidden = true;
+}
+
+function maximizeWindow(id) {
+  const win = document.getElementById(id);
+
+  if (win.dataset.maximized === "true") {
+    win.style.width = "";
+    win.style.height = "";
+    win.style.top = "45%";
+    win.style.left = "50%";
+    win.style.transform = "translate(-50%, -50%)";
+    win.dataset.maximized = "false";
+  } else {
+    win.style.width = "calc(100vw - 40px)";
+    win.style.height = "calc(100vh - 100px)";
+    win.style.top = "55px";
+    win.style.left = "20px";
+    win.style.transform = "none";
+    win.dataset.maximized = "true";
+  }
+
+  win.style.zIndex = ++topLayer;
+}
+
+document.querySelectorAll(".window").forEach(function(win) {
+  win.addEventListener("mousedown", function() {
+    win.style.zIndex = ++topLayer;
+  });
+
+  const bar = win.querySelector(".titlebar");
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  bar.addEventListener("mousedown", function(event) {
+    if (event.target.tagName === "BUTTON") return;
+    if (win.dataset.maximized === "true") return;
+
+    dragging = true;
+
+    const rect = win.getBoundingClientRect();
+    win.style.transform = "none";
+    win.style.left = rect.left + "px";
+    win.style.top = rect.top + "px";
+
+    offsetX = event.clientX - rect.left;
+    offsetY = event.clientY - rect.top;
+    win.style.zIndex = ++topLayer;
+  });
+
+  document.addEventListener("mousemove", function(event) {
+    if (!dragging) return;
+
+    win.style.left = event.clientX - offsetX + "px";
+    win.style.top = event.clientY - offsetY + "px";
+  });
+
+  document.addEventListener("mouseup", function() {
+    dragging = false;
+  });
 });
 
-document.querySelectorAll("[data-close]").forEach(button => {
-    button.addEventListener("click", () => {
-        document.getElementById(button.dataset.close).hidden = true;
-    });
-});
+function calculate() {
+  const input = document.getElementById("calc-input").value.trim();
+  const output = document.getElementById("calc-result");
 
-document.querySelectorAll("[data-minimize]").forEach(button => {
-    button.addEventListener("click", () => {
-        document.getElementById(button.dataset.minimize).hidden = true;
-    });
-});
+  if (!/^[0-9+\-*/().%\s]+$/.test(input)) {
+    output.textContent = "Enter a valid math expression.";
+    return;
+  }
 
-document.querySelectorAll(".window").forEach(windowBox => {
-    const titlebar = windowBox.querySelector(".titlebar");
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
-    let dragging = false;
+  try {
+    const result = Function('"use strict"; return (' + input + ')')();
 
-    titlebar.addEventListener("pointerdown", event => {
-        if (event.target.tagName === "BUTTON") return;
-
-        dragging = true;
-        startX = event.clientX;
-        startY = event.clientY;
-
-        const rect = windowBox.getBoundingClientRect();
-        startLeft = rect.left;
-        startTop = rect.top;
-
-        windowBox.style.transform = "none";
-        windowBox.style.left = startLeft + "px";
-        windowBox.style.top = startTop + "px";
-        windowBox.style.zIndex = Date.now();
-
-        titlebar.setPointerCapture(event.pointerId);
-    });
-
-    titlebar.addEventListener("pointermove", event => {
-        if (!dragging) return;
-
-        windowBox.style.left = startLeft + event.clientX - startX + "px";
-        windowBox.style.top = startTop + event.clientY - startY + "px";
-    });
-
-    titlebar.addEventListener("pointerup", () => {
-        dragging = false;
-    });
-
-    titlebar.addEventListener("pointercancel", () => {
-        dragging = false;
-    });
-});
-
-const noteText = document.getElementById("noteText");
-
-noteText.value = localStorage.getItem("orbitNote") || "";
-
-noteText.addEventListener("input", () => {
-    localStorage.setItem("orbitNote", noteText.value);
-});
-
-const calcDisplay = document.getElementById("calcDisplay");
-const calcResult = document.getElementById("calcResult");
-
-document.getElementById("calculate").addEventListener("click", () => {
-    const expression = calcDisplay.value.trim();
-
-    if (!/^[0-9+\-*/().\s]+$/.test(expression) || !/[0-9]/.test(expression)) {
-        calcResult.textContent = "Enter a valid calculation.";
-        return;
+    if (typeof result !== "number" || !Number.isFinite(result)) {
+      output.textContent = "That calculation is not valid.";
+    } else {
+      output.textContent = "Answer: " + result;
     }
+  } catch {
+    output.textContent = "Could not calculate that expression.";
+  }
+}
 
-    try {
-        const result = Function('"use strict"; return (' + expression + ')')();
-
-        if (!Number.isFinite(result)) {
-            calcResult.textContent = "Cannot divide by zero.";
-            return;
-        }
-
-        calcResult.textContent = "= " + result;
-    } catch {
-        calcResult.textContent = "Invalid calculation.";
-    }
+document.getElementById("calc-input").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") calculate();
 });
 
-document.getElementById("changeBackground").addEventListener("click", () => {
-    const colors = ["#050608", "#101827", "#171019", "#10201b"];
-    const current = document.body.style.backgroundColor;
-    const index = colors.indexOf(current);
-    document.body.style.backgroundColor = colors[(index + 1) % colors.length];
+function searchWeb() {
+  const query = document.getElementById("browser-input").value.trim();
+
+  if (query) {
+    window.open(
+      "https://www.google.com/search?q=" + encodeURIComponent(query),
+      "_blank",
+      "noopener"
+    );
+  }
+}
+
+document.getElementById("browser-input").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") searchWeb();
+});
+
+function runTerminal() {
+  const input = document.getElementById("terminal-input");
+  const output = document.getElementById("terminal-output");
+  const command = input.value.trim().toLowerCase();
+
+  if (command === "help") {
+    output.textContent = "Commands: help, date, clear, home";
+  } else if (command === "date") {
+    output.textContent = new Date().toString();
+  } else if (command === "clear") {
+    output.textContent = "";
+  } else if (command === "home") {
+    openApp("welcome");
+    output.textContent = "Welcome window opened.";
+  } else {
+    output.textContent = "Command not found. Type help.";
+  }
+
+  input.value = "";
+}
+
+document.getElementById("terminal-input").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") runTerminal();
+});
+
+function toggleBackground() {
+  document.body.classList.toggle("dimmed");
+}
+
+function resetDesktop() {
+  document.querySelectorAll(".window").forEach(function(win) {
+    win.hidden = win.id !== "welcome";
+    win.style.width = "";
+    win.style.height = "";
+    win.style.top = "";
+    win.style.left = "";
+    win.style.transform = "";
+    win.dataset.maximized = "false";
+  });
+
+  document.body.classList.remove("dimmed");
+}
+
+const notes = document.getElementById("notes-text");
+
+notes.value = localStorage.getItem("orbit-notes") || "";
+
+notes.addEventListener("input", function() {
+  localStorage.setItem("orbit-notes", notes.value);
 });
