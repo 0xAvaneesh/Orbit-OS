@@ -6,8 +6,8 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #050608;
-    background-image: url("https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2025/webb-STScI-01JKREFYNJE7MT5SG2H0FBYG75-2K.png?w=1200&h=675&fit=crop&crop=faces%2Cfocalpoint");
+    background-color: #050608;
+    background-image: url("background.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -38,12 +38,12 @@ button:hover {
 .topbar {
     height: 45px;
     padding: 0 18px;
-    background: rgba(21, 21, 24, 0.92);
+    background: rgba(21, 21, 24, 0.88);
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #29292e;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(10px);
 }
 
 .brand {
@@ -68,13 +68,13 @@ button:hover {
     left: 50%;
     width: 520px;
     max-width: calc(100vw - 30px);
-    background: rgba(16, 17, 21, 0.94);
-    border: 1px solid #ffffff24;
+    background: rgba(16, 17, 21, 0.93);
+    border: 1px solid #303138;
     border-radius: 12px;
     overflow: hidden;
     transform: translate(-50%, -50%);
     box-shadow: 0 20px 60px #0008;
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(12px);
 }
 
 .window[hidden] {
@@ -188,7 +188,7 @@ textarea {
     background: rgba(25, 26, 31, 0.94);
     border: 1px solid #35363d;
     border-radius: 14px;
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(12px);
 }
 
 .dock button {
