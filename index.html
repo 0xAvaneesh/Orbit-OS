@@ -2,112 +2,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbit OS</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbit OS</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">ORBIT OS</div>
-        <div id="clock"></div>
-    </header>
 
-    <main class="desktop">
-        <section class="window welcome" id="welcome">
-            <div class="titlebar">
-                <div class="controls">
-                    <button class="red" data-close="welcome"></button>
-                    <button class="yellow" data-minimize="welcome"></button>
-                    <button class="green"></button>
-                </div>
-                <span>Welcome</span>
-            </div>
+  <header class="topbar">
+    <div class="brand">ORBIT OS</div>
+    <div id="clock"></div>
+  </header>
 
-            <div class="content">
-                <h1>Welcome to Orbit.</h1>
-                <p>A simple desktop built for the web.</p>
+  <main class="desktop">
 
-                <div class="apps">
-                    <button data-open="notes">Notes</button>
-                    <button data-open="calculator">Calculator</button>
-                    <button data-open="files">Files</button>
-                    <button data-open="settings">Settings</button>
-                </div>
-            </div>
-        </section>
+    <section class="window" id="welcome">
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('welcome')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('welcome')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('welcome')" aria-label="Maximize"></button>
+        </div>
+        <span>Welcome</span>
+        <span class="title-space"></span>
+      </div>
 
-        <section class="window app-window" id="notes" hidden>
-            <div class="titlebar">
-                <div class="controls">
-                    <button class="red" data-close="notes"></button>
-                    <button class="yellow" data-minimize="notes"></button>
-                    <button class="green"></button>
-                </div>
-                <span>Notes</span>
-            </div>
-            <div class="content">
-                <textarea id="noteText" placeholder="Write something..."></textarea>
-            </div>
-        </section>
+      <div class="content">
+        <p class="eyebrow">YOUR DESKTOP</p>
+        <h1>Welcome to Orbit.</h1>
+        <p>A quiet place in the middle of everything.</p>
+        <button onclick="openApp('files')">Explore files ↗</button>
+      </div>
+    </section>
 
-        <section class="window app-window" id="calculator" hidden>
-            <div class="titlebar">
-                <div class="controls">
-                    <button class="red" data-close="calculator"></button>
-                    <button class="yellow" data-minimize="calculator"></button>
-                    <button class="green"></button>
-                </div>
-                <span>Calculator</span>
-            </div>
-            <div class="content">
-                <input id="calcDisplay" placeholder="Enter a calculation">
-                <button id="calculate">Calculate</button>
-                <p id="calcResult"></p>
-            </div>
-        </section>
+    <section class="window app-window" id="calculator" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('calculator')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('calculator')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('calculator')" aria-label="Maximize"></button>
+        </div>
+        <span>Calculator</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <input id="calc-input" placeholder="Example: 12 * 8">
+        <button onclick="calculate()">Calculate</button>
+        <p id="calc-result">Your answer appears here.</p>
+      </div>
+    </section>
 
-        <section class="window app-window" id="files" hidden>
-            <div class="titlebar">
-                <div class="controls">
-                    <button class="red" data-close="files"></button>
-                    <button class="yellow" data-minimize="files"></button>
-                    <button class="green"></button>
-                </div>
-                <span>Files</span>
-            </div>
-            <div class="content">
-                <p>My Files</p>
-                <div class="file">📁 Documents</div>
-                <div class="file">📁 Downloads</div>
-                <div class="file">📄 Welcome.txt</div>
-            </div>
-        </section>
+    <section class="window app-window" id="terminal" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('terminal')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('terminal')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('terminal')" aria-label="Maximize"></button>
+        </div>
+        <span>Terminal</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <p>ORBIT OS [Version 1.0]</p>
+        <input id="terminal-input" placeholder="Type help and press Enter">
+        <p id="terminal-output">Ready.</p>
+      </div>
+    </section>
 
-        <section class="window app-window" id="settings" hidden>
-            <div class="titlebar">
-                <div class="controls">
-                    <button class="red" data-close="settings"></button>
-                    <button class="yellow" data-minimize="settings"></button>
-                    <button class="green"></button>
-                </div>
-                <span>Settings</span>
-            </div>
-            <div class="content">
-                <p>Desktop appearance</p>
-                <button id="changeBackground">Change background</button>
-            </div>
-        </section>
-    </main>
+    <section class="window app-window" id="files" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('files')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('files')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('files')" aria-label="Maximize"></button>
+        </div>
+        <span>Files</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <h2>My files</h2>
+        <div class="file">📁 Documents</div>
+        <div class="file">📁 Projects</div>
+        <div class="file">📁 Pictures</div>
+        <p>These are sample folders, not your actual computer files.</p>
+      </div>
+    </section>
 
-    <nav class="dock">
-        <button data-open="welcome">⌂</button>
-        <button data-open="notes">N</button>
-        <button data-open="calculator">C</button>
-        <button data-open="files">F</button>
-        <button data-open="settings">⚙</button>
-    </nav>
+    <section class="window app-window" id="browser" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('browser')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('browser')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('browser')" aria-label="Maximize"></button>
+        </div>
+        <span>Browser</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <h2>Quick search</h2>
+        <input id="browser-input" placeholder="Search the web">
+        <button onclick="searchWeb()">Search</button>
+        <p>Search opens in a new browser tab.</p>
+      </div>
+    </section>
 
-    <script src="app.js"></script>
+    <section class="window app-window" id="settings" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('settings')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('settings')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('settings')" aria-label="Maximize"></button>
+        </div>
+        <span>Settings</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <h2>Settings</h2>
+        <p>Change your desktop appearance.</p>
+        <button onclick="toggleBackground()">Toggle background dim</button>
+        <button onclick="resetDesktop()">Reset desktop</button>
+      </div>
+    </section>
+
+    <section class="window app-window" id="notes" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" onclick="closeWindow('notes')" aria-label="Close"></button>
+          <button class="yellow" onclick="minimizeWindow('notes')" aria-label="Minimize"></button>
+          <button class="green" onclick="maximizeWindow('notes')" aria-label="Maximize"></button>
+        </div>
+        <span>Notes</span>
+        <span class="title-space"></span>
+      </div>
+      <div class="content">
+        <h2>Quick notes</h2>
+        <textarea id="notes-text" placeholder="Write something..."></textarea>
+        <p>Your notes stay in this browser on this device.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="dock">
+    <button onclick="openApp('calculator')" title="Calculator">
+      <img src="feather--search.svg" alt="Calculator">
+    </button>
+    <button onclick="openApp('terminal')" title="Terminal">
+      <img src="feather--clock.svg" alt="Terminal">
+    </button>
+    <button onclick="openApp('files')" title="Files">
+      <img src="feather--home.svg" alt="Files">
+    </button>
+    <button onclick="openApp('browser')" title="Browser">
+      <img src="feather--globe.svg" alt="Browser">
+    </button>
+    <button onclick="openApp('settings')" title="Settings">
+      <img src="feather--settings.svg" alt="Settings">
+    </button>
+    <button onclick="openApp('notes')" title="Notes">
+      <img src="feather--calendar.svg" alt="Notes">
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
 </body>
 </html>
