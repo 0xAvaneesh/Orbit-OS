@@ -28,7 +28,7 @@ I didn't use any frameworks for it.
 
 ## How to run it
 
-Just open `index.html` in a browser.
+Just open 'https://orbitosav.netlify.app'
 
 ## Why I made it
 
