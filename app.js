@@ -1,10 +1,10 @@
 
 function updateClock() {
+  const now = new Date();
   document.getElementById("clock").textContent =
-    new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+    now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) +
+    "  " +
+    now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 updateClock();
@@ -12,101 +12,203 @@ setInterval(updateClock, 1000);
 
 let topLayer = 10;
 
+function focusWindow(win) {
+  topLayer++;
+  win.style.zIndex = topLayer;
+}
+
 function openApp(id) {
   const win = document.getElementById(id);
   if (!win) return;
 
   win.hidden = false;
-  win.style.zIndex = ++topLayer;
+  focusWindow(win);
+  document.getElementById("status").textContent =
+    win.dataset.title.toUpperCase();
+
+  if (id === "terminal") {
+    document.getElementById("terminal-input").focus();
+  }
 }
 
 function closeWindow(id) {
-  document.getElementById(id).hidden = true;
+  const win = document.getElementById(id);
+  if (!win) return;
+  win.hidden = true;
+  win.classList.remove("maximized");
+  win.dataset.maximized = "false";
+  win.style.width = "";
+  win.style.height = "";
+  document.getElementById("status").textContent = "DESKTOP";
 }
 
 function minimizeWindow(id) {
-  document.getElementById(id).hidden = true;
+  closeWindow(id);
 }
 
 function maximizeWindow(id) {
   const win = document.getElementById(id);
 
   if (win.dataset.maximized === "true") {
-    win.style.width = "";
-    win.style.height = "";
-    win.style.top = "45%";
-    win.style.left = "50%";
-    win.style.transform = "translate(-50%, -50%)";
+    win.classList.remove("maximized");
+    win.style.cssText = win.dataset.previousStyle || "";
     win.dataset.maximized = "false";
   } else {
-    win.style.width = "calc(100vw - 40px)";
-    win.style.height = "calc(100vh - 100px)";
-    win.style.top = "55px";
-    win.style.left = "20px";
+    win.dataset.previousStyle = win.style.cssText;
+    win.classList.add("maximized");
+    win.style.top = "54px";
+    win.style.left = "12px";
+    win.style.width = "calc(100vw - 24px)";
+    win.style.height = "calc(100dvh - 95px)";
+    win.style.maxHeight = "none";
     win.style.transform = "none";
     win.dataset.maximized = "true";
   }
 
-  win.style.zIndex = ++topLayer;
+  focusWindow(win);
 }
 
 document.querySelectorAll(".window").forEach(function(win) {
-  win.addEventListener("mousedown", function() {
-    win.style.zIndex = ++topLayer;
+  win.addEventListener("pointerdown", function() {
+    focusWindow(win);
   });
 
   const bar = win.querySelector(".titlebar");
   let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
 
-  bar.addEventListener("mousedown", function(event) {
-    if (event.target.tagName === "BUTTON") return;
+  bar.addEventListener("pointerdown", function(event) {
+    if (event.target.closest("button")) return;
     if (win.dataset.maximized === "true") return;
 
     dragging = true;
+    bar.setPointerCapture(event.pointerId);
 
     const rect = win.getBoundingClientRect();
     win.style.transform = "none";
     win.style.left = rect.left + "px";
     win.style.top = rect.top + "px";
 
-    offsetX = event.clientX - rect.left;
-    offsetY = event.clientY - rect.top;
-    win.style.zIndex = ++topLayer;
+    startX = event.clientX;
+    startY = event.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    focusWindow(win);
   });
 
-  document.addEventListener("mousemove", function(event) {
+  bar.addEventListener("pointermove", function(event) {
     if (!dragging) return;
 
-    win.style.left = event.clientX - offsetX + "px";
-    win.style.top = event.clientY - offsetY + "px";
+    const maxLeft = window.innerWidth - 80;
+    const maxTop = window.innerHeight - 80;
+
+    win.style.left = Math.max(
+      0, Math.min(maxLeft, startLeft + event.clientX - startX)
+    ) + "px";
+
+    win.style.top = Math.max(
+      45, Math.min(maxTop, startTop + event.clientY - startY)
+    ) + "px";
   });
 
-  document.addEventListener("mouseup", function() {
+  function stopDragging() {
     dragging = false;
-  });
+  }
+
+  bar.addEventListener("pointerup", stopDragging);
+  bar.addEventListener("pointercancel", stopDragging);
 });
 
 function calculate() {
   const input = document.getElementById("calc-input").value.trim();
   const output = document.getElementById("calc-result");
 
-  if (!/^[0-9+\-*/().%\s]+$/.test(input)) {
+  if (!input || !/^[0-9+\-*/().%\s]+$/.test(input)) {
     output.textContent = "Enter a valid math expression.";
     return;
   }
 
-  try {
-    const result = Function('"use strict"; return (' + input + ')')();
+  const tokens = input.match(/\d*\.?\d+|[+\-*/()%]/g);
 
-    if (typeof result !== "number" || !Number.isFinite(result)) {
-      output.textContent = "That calculation is not valid.";
-    } else {
-      output.textContent = "Answer: " + result;
+  if (!tokens || tokens.join("").replace(/\s/g, "") !== input.replace(/\s/g, "")) {
+    output.textContent = "Invalid expression.";
+    return;
+  }
+
+  let pos = 0;
+
+  function expression() {
+    let value = term();
+
+    while (tokens[pos] === "+" || tokens[pos] === "-") {
+      const op = tokens[pos++];
+      const right = term();
+      value = op === "+" ? value + right : value - right;
     }
-  } catch {
-    output.textContent = "Could not calculate that expression.";
+
+    return value;
+  }
+
+  function term() {
+    let value = factor();
+
+    while (["*", "/", "%"].includes(tokens[pos])) {
+      const op = tokens[pos++];
+      const right = factor();
+
+      if ((op === "/" || op === "%") && right === 0) {
+        throw Error("Cannot divide by zero.");
+      }
+
+      if (op === "*") value *= right;
+      if (op === "/") value /= right;
+      if (op === "%") value %= right;
+    }
+
+    return value;
+  }
+
+  function factor() {
+    if (tokens[pos] === "+") {
+      pos++;
+      return factor();
+    }
+
+    if (tokens[pos] === "-") {
+      pos++;
+      return -factor();
+    }
+
+    if (tokens[pos] === "(") {
+      pos++;
+      const value = expression();
+
+      if (tokens[pos++] !== ")") throw Error("Missing closing bracket.");
+      return value;
+    }
+
+    const token = tokens[pos++];
+
+    if (!token || !/^\d*\.?\d+$/.test(token)) {
+      throw Error("Invalid expression.");
+    }
+
+    return Number(token);
+  }
+
+  try {
+    const result = expression();
+
+    if (pos !== tokens.length || !Number.isFinite(result)) {
+      throw Error("Invalid expression.");
+    }
+
+    output.textContent = "Answer: " + Number(result.toPrecision(12));
+  } catch (error) {
+    output.textContent = error.message || "Could not calculate.";
   }
 }
 
@@ -114,69 +216,108 @@ document.getElementById("calc-input").addEventListener("keydown", function(event
   if (event.key === "Enter") calculate();
 });
 
-function searchWeb() {
+document.getElementById("browser-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+
   const query = document.getElementById("browser-input").value.trim();
+  if (!query) return;
 
-  if (query) {
-    window.open(
-      "https://www.google.com/search?q=" + encodeURIComponent(query),
-      "_blank",
-      "noopener"
-    );
-  }
-}
+  const url = /^https?:\/\//i.test(query)
+    ? query
+    : /^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(query)
+      ? "https://" + query
+      : "https://www.google.com/search?q=" + encodeURIComponent(query);
 
-document.getElementById("browser-input").addEventListener("keydown", function(event) {
-  if (event.key === "Enter") searchWeb();
+  window.open(url, "_blank", "noopener,noreferrer");
 });
 
-function runTerminal() {
+const terminalOutput = document.getElementById("terminal-output");
+
+document.getElementById("terminal-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+
   const input = document.getElementById("terminal-input");
-  const output = document.getElementById("terminal-output");
   const command = input.value.trim().toLowerCase();
+  let result = "";
 
-  if (command === "help") {
-    output.textContent = "Commands: help, date, clear, home";
-  } else if (command === "date") {
-    output.textContent = new Date().toString();
-  } else if (command === "clear") {
-    output.textContent = "";
-  } else if (command === "home") {
-    openApp("welcome");
-    output.textContent = "Welcome window opened.";
-  } else {
-    output.textContent = "Command not found. Type help.";
+  switch (command) {
+    case "help":
+      result = "Commands: help, date, time, clear, home, files, notes, calc, settings, about";
+      break;
+    case "date":
+      result = new Date().toDateString();
+      break;
+    case "time":
+      result = new Date().toLocaleTimeString();
+      break;
+    case "home":
+      openApp("welcome");
+      result = "Welcome opened.";
+      break;
+    case "files":
+      openApp("files");
+      result = "Files opened.";
+      break;
+    case "notes":
+      openApp("notes");
+      result = "Notes opened.";
+      break;
+    case "calc":
+      openApp("calculator");
+      result = "Calculator opened.";
+      break;
+    case "settings":
+      openApp("settings");
+      result = "Settings opened.";
+      break;
+    case "about":
+      result = "Orbit OS 1.0 | Built with HTML, CSS and JavaScript.";
+      break;
+    case "clear":
+      terminalOutput.textContent = "";
+      input.value = "";
+      return;
+    case "":
+      return;
+    default:
+      result = "Command not found. Type help.";
   }
 
+  terminalOutput.textContent += "\n\norbit > " + command + "\n" + result;
   input.value = "";
-}
-
-document.getElementById("terminal-input").addEventListener("keydown", function(event) {
-  if (event.key === "Enter") runTerminal();
 });
 
-function toggleBackground() {
+document.getElementById("dim-toggle").addEventListener("click", function() {
   document.body.classList.toggle("dimmed");
-}
+});
 
 function resetDesktop() {
   document.querySelectorAll(".window").forEach(function(win) {
     win.hidden = win.id !== "welcome";
-    win.style.width = "";
-    win.style.height = "";
-    win.style.top = "";
-    win.style.left = "";
-    win.style.transform = "";
+    win.style.cssText = "";
+    win.classList.remove("maximized");
     win.dataset.maximized = "false";
   });
 
   document.body.classList.remove("dimmed");
+  document.getElementById("status").textContent = "DESKTOP";
+  focusWindow(document.getElementById("welcome"));
 }
 
 const notes = document.getElementById("notes-text");
+const notesStatus = document.getElementById("notes-status");
 
-notes.value = localStorage.getItem("orbit-notes") || "";
+try {
+  notes.value = localStorage.getItem("orbit-notes") || "";
+} catch {
+  notesStatus.textContent = "Local saving is unavailable in this browser.";
+}
 
 notes.addEventListener("input", function() {
-  localStorage.setItem("orbit-notes", notes.value);
+  try {
+    localStorage.setItem("orbit-notes", notes.value);
+    notesStatus.textContent = "Saved locally in this browser.";
+  } catch {
+    notesStatus.textContent = "Could not save notes in this browser.";
+  }
 });
