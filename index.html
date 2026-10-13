@@ -11,157 +11,177 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="orbit-mark">◉</span> ORBIT OS</div>
-    <div class="top-info"><span id="status">DESKTOP</span><span id="clock"></span></div>
+    <strong class="brand">ORBIT <span>OS</span></strong>
+    <div class="topbar-right">
+      <span id="clock"></span>
+    </div>
   </header>
 
-  <main class="desktop">
-    <div class="desktop-label">
-      <span>PERSONAL WORKSPACE</span>
-      <span>V 1.0</span>
-    </div>
-
-    <section class="window welcome" id="welcome" data-title="Welcome">
+  <main class="desktop" id="desktop">
+    <section class="window welcome-window" id="welcome">
       <div class="titlebar">
         <div class="controls">
-          <button class="red" onclick="closeWindow('welcome')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('welcome')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('welcome')" aria-label="Maximize"></button>
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
         </div>
-        <span class="window-title">Welcome</span><span></span>
+        <span>Welcome</span>
+        <span class="window-mark">ORBIT</span>
       </div>
-      <div class="content hero">
-        <p class="eyebrow">A DESKTOP OF YOUR OWN</p>
-        <h1>Make room<br>for <span>what matters.</span></h1>
-        <p>A little space to think, build, and get things done.</p>
-        <button class="primary" onclick="openApp('files')">Explore workspace <span>↗</span></button>
-        <div class="hero-foot"><span><i></i> SYSTEM READY</span><span>BUILT WITH HTML · CSS · JS</span></div>
+      <div class="content welcome">
+        <small class="eyebrow">ORBIT OS / VERSION 2.1</small>
+        <h1>Your space.<br>Your desktop.</h1>
+        <p>A quieter place to work, explore and create.</p>
+        <button class="primary" data-open="files">Explore your files <span>↗</span></button>
+        <div class="welcome-footer">
+          <span>DESIGNED FOR THE WEB</span>
+          <span>01 — 07</span>
+        </div>
       </div>
     </section>
 
-    <section class="window app-window" id="files" data-title="Files" hidden>
+    <section class="window app-window" id="files" hidden>
       <div class="titlebar">
         <div class="controls">
-          <button class="red" onclick="closeWindow('files')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('files')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('files')" aria-label="Maximize"></button>
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
         </div>
-        <span class="window-title">Files</span><span></span>
+        <span>Finder</span><span></span>
       </div>
       <div class="content">
-        <p class="eyebrow">WORKSPACE / OVERVIEW</p>
-        <h2>Your files</h2>
-        <div class="file"><span>▤</span><div><b>Documents</b><small>Text and documents</small></div><span class="file-arrow">↗</span></div>
-        <div class="file"><span>⌘</span><div><b>Projects</b><small>Things you're building</small></div><span class="file-arrow">↗</span></div>
-        <div class="file"><span>▧</span><div><b>Pictures</b><small>Images and memories</small></div><span class="file-arrow">↗</span></div>
-        <p class="hint">Demo folders only. Your computer's real files aren't accessed.</p>
+        <div class="toolbar">
+          <button id="file-back">←</button>
+          <span id="file-path">Home</span>
+        </div>
+        <div id="file-list" class="file-list"></div>
+        <div id="file-preview" class="file-preview" hidden></div>
       </div>
     </section>
 
-    <section class="window app-window" id="notes" data-title="Notes" hidden>
+    <section class="window app-window" id="calculator" hidden>
       <div class="titlebar">
         <div class="controls">
-          <button class="red" onclick="closeWindow('notes')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('notes')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('notes')" aria-label="Maximize"></button>
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
         </div>
-        <span class="window-title">Notes</span><span></span>
+        <span>Calculator</span><span></span>
       </div>
-      <div class="content">
-        <p class="eyebrow">QUICK CAPTURE</p>
-        <h2>Get it out of your head.</h2>
-        <textarea id="notes-text" placeholder="Start writing..."></textarea>
-        <p class="hint" id="notes-status">Saved locally in this browser.</p>
+      <div class="content calculator">
+        <input id="calc-input" aria-label="Calculation" placeholder="0" autocomplete="off">
+        <div id="calc-result" aria-live="polite">0</div>
+        <div class="calc-grid">
+          <button data-key="C">AC</button><button data-key="(">(</button>
+          <button data-key=")">)</button><button data-key="/">÷</button>
+          <button data-key="7">7</button><button data-key="8">8</button>
+          <button data-key="9">9</button><button data-key="*">×</button>
+          <button data-key="4">4</button><button data-key="5">5</button>
+          <button data-key="6">6</button><button data-key="-">−</button>
+          <button data-key="1">1</button><button data-key="2">2</button>
+          <button data-key="3">3</button><button data-key="+">+</button>
+          <button data-key="0">0</button><button data-key=".">.</button>
+          <button data-key="Back">⌫</button><button data-key="=" class="equals">=</button>
+        </div>
       </div>
     </section>
 
-    <section class="window app-window" id="calculator" data-title="Calculator" hidden>
+    <section class="window app-window" id="terminal" hidden>
       <div class="titlebar">
         <div class="controls">
-          <button class="red" onclick="closeWindow('calculator')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('calculator')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('calculator')" aria-label="Maximize"></button>
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
         </div>
-        <span class="window-title">Calculator</span><span></span>
-      </div>
-      <div class="content">
-        <p class="eyebrow">QUICK MATH</p>
-        <h2>Make it add up.</h2>
-        <input id="calc-input" placeholder="e.g. (12 + 8) * 3">
-        <button class="primary" onclick="calculate()">Calculate <span>→</span></button>
-        <div class="result" id="calc-result">Your result will appear here.</div>
-        <p class="hint">Supports +, −, ×, ÷, brackets and percentages.</p>
-      </div>
-    </section>
-
-    <section class="window app-window" id="browser" data-title="Browser" hidden>
-      <div class="titlebar">
-        <div class="controls">
-          <button class="red" onclick="closeWindow('browser')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('browser')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('browser')" aria-label="Maximize"></button>
-        </div>
-        <span class="window-title">Browser</span><span></span>
-      </div>
-      <div class="content">
-        <p class="eyebrow">THE OPEN WEB</p>
-        <h2>Where to next?</h2>
-        <form id="browser-form">
-          <input id="browser-input" placeholder="Search or enter a website..." autocomplete="off">
-          <button class="primary" type="submit">Go <span>↗</span></button>
-        </form>
-        <p class="hint">Searches open in a new tab.</p>
-      </div>
-    </section>
-
-    <section class="window app-window" id="terminal" data-title="Terminal" hidden>
-      <div class="titlebar">
-        <div class="controls">
-          <button class="red" onclick="closeWindow('terminal')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('terminal')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('terminal')" aria-label="Maximize"></button>
-        </div>
-        <span class="window-title">Terminal</span><span></span>
+        <span>Terminal</span><span></span>
       </div>
       <div class="content terminal">
-        <p class="eyebrow">ORBIT SHELL / 1.0</p>
-        <div id="terminal-output">Orbit OS terminal ready.<br>Type <b>help</b> to see commands.</div>
+        <div id="terminal-output" aria-live="polite">Orbit OS Terminal v2.1
+Type help for available commands.</div>
         <form id="terminal-form">
-          <label for="terminal-input">orbit <span>›</span></label>
-          <input id="terminal-input" placeholder="Type a command..." autocomplete="off" spellcheck="false">
+          <label for="terminal-input">orbit@desktop ~ %</label>
+          <input id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command">
         </form>
       </div>
     </section>
 
-    <section class="window app-window" id="settings" data-title="Settings" hidden>
+    <section class="window app-window" id="browser" hidden>
       <div class="titlebar">
         <div class="controls">
-          <button class="red" onclick="closeWindow('settings')" aria-label="Close"></button>
-          <button class="yellow" onclick="minimizeWindow('settings')" aria-label="Minimize"></button>
-          <button class="green" onclick="maximizeWindow('settings')" aria-label="Maximize"></button>
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
         </div>
-        <span class="window-title">Settings</span><span></span>
+        <span>Safari</span><span></span>
       </div>
       <div class="content">
-        <p class="eyebrow">MAKE IT YOURS</p>
-        <h2>Desktop settings</h2>
-        <div class="setting-row"><div><b>Dim wallpaper</b><small>Make windows stand out.</small></div><button id="dim-toggle">Toggle</button></div>
-        <div class="setting-row"><div><b>Reset desktop</b><small>Restore the original layout.</small></div><button onclick="resetDesktop()">Reset</button></div>
-        <p class="hint">Settings affect this desktop, not your computer.</p>
+        <h2>Explore the web.</h2>
+        <form id="browser-form" class="search-row">
+          <input id="browser-input" placeholder="Search or enter a website" aria-label="Search or website">
+          <button class="primary">Go ↗</button>
+        </form>
+        <p class="muted">Search results open in a new browser tab.</p>
+      </div>
+    </section>
+
+    <section class="window app-window" id="notes" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
+        </div>
+        <span>Notes</span><span></span>
+      </div>
+      <div class="content notes-content">
+        <input id="notes-title" placeholder="Untitled note" aria-label="Note title">
+        <textarea id="notes-text" placeholder="Start writing..." aria-label="Note content"></textarea>
+        <p id="notes-status" class="muted">Saved on this device</p>
+      </div>
+    </section>
+
+    <section class="window app-window" id="settings" hidden>
+      <div class="titlebar">
+        <div class="controls">
+          <button class="red" data-action="close" aria-label="Close"></button>
+          <button class="yellow" data-action="minimize" aria-label="Minimize"></button>
+          <button class="green" data-action="maximize" aria-label="Maximize"></button>
+        </div>
+        <span>System Settings</span><span></span>
+      </div>
+      <div class="content">
+        <small class="eyebrow">PERSONALIZATION</small>
+        <h2>Appearance</h2>
+        <label class="setting" for="dim-range">Wallpaper dim <output id="dim-value">35%</output></label>
+        <input type="range" id="dim-range" min="0" max="90" value="35">
+        <div class="setting-divider"></div>
+        <h2>Desktop</h2>
+        <p class="muted">Restore the original window layout.</p>
+        <button id="reset-desktop">Reset window positions</button>
+        <p class="muted">Your saved notes will remain untouched.</p>
       </div>
     </section>
   </main>
 
   <nav class="dock" aria-label="Applications">
-    <button class="dock-app" onclick="openApp('welcome')" title="Home" aria-label="Home"><span>⌂</span></button>
-    <span class="dock-divider"></span>
-    <button class="dock-app" onclick="openApp('files')" title="Files" aria-label="Files"><span>▤</span></button>
-    <button class="dock-app" onclick="openApp('notes')" title="Notes" aria-label="Notes"><span>▧</span></button>
-    <button class="dock-app" onclick="openApp('calculator')" title="Calculator" aria-label="Calculator"><span>±</span></button>
-    <button class="dock-app" onclick="openApp('browser')" title="Browser" aria-label="Browser"><span>◎</span></button>
-    <button class="dock-app" onclick="openApp('terminal')" title="Terminal" aria-label="Terminal"><span>›_</span></button>
-    <button class="dock-app" onclick="openApp('settings')" title="Settings" aria-label="Settings"><span>⚙</span></button>
+    <button data-open="files" title="Finder" aria-label="Finder">
+      <img src="Finder_Icon_macOS_Big_Sur.png" alt="">
+    </button>
+    <button data-open="browser" title="Safari" aria-label="Safari">
+      <img src="Safari.png" alt="">
+    </button>
+    <button data-open="notes" title="Notes" aria-label="Notes">
+      <img src="Notes.png" alt="">
+    </button>
+    <button data-open="calculator" title="Calculator" aria-label="Calculator">
+      <img src="Calculator.png" alt="">
+    </button>
+    <button data-open="terminal" title="Terminal" aria-label="Terminal">
+      <img src="Terminalicon3.png" alt="">
+    </button>
+    <button data-open="settings" title="System Settings" aria-label="System Settings">
+      <img src="System Settings.png" alt="">
+    </button>
   </nav>
-  <div class="corner-note">ORBIT OS <span>·</span> YOUR SPACE</div>
 </body>
 </html>
